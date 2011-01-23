@@ -1,0 +1,1 @@
+Questo repository contiene gli esercizi che scrivo seguendo lo studio del libro di Conrad Barski: [Land Of Lisp](http://landoflisp.com/).
