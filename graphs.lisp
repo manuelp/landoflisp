@@ -49,3 +49,20 @@
   (edges->dot edges)
   (fresh-line)
   (princ "}"))
+
+; Uso della tecnica dei thunk per catturare l'output di una funzione e
+; redirigerlo dallo *standard-output* in un file. Dopodichè si usa il
+; file generato chiamando un comando da shell per produrre il file PNG
+; con il grafo.
+(defun dot->png (fname thunk)
+  (with-open-file (*standard-output*
+		   fname
+		   :direction :output
+		   :if-exists :supersede)
+		  (funcall thunk))
+  (ext:shell (concatenate 'string "dot -Tpng -O " fname)))
+
+(defun graph->png (fname nodes edges)
+  (dot->png fname
+	    (lambda ()
+	      (graph->dot nodes edges))))
