@@ -215,19 +215,23 @@
 
 (defun handle-new-place (edge pos charging)
   (let* ((node (assoc pos *congestion-city-nodes*))
-	 (has-worm (and (member 'glow-worm node)
+	 (has-worm (and (member 'glown-worm node)
 			(not (member pos *visited-nodes*)))))
     (pushnew pos *visited-nodes*)
     (setf *player-pos* pos)
     (draw-known-city)
-    (cond ((member 'cops edge) (princ "You rand into the cops. Game Over."))
+    (cond ((member 'cops edge) (game-over "You rand into the cops. Game Over."))
 	  ((member 'wumpus node) (if charging
-				     (princ "You found the wumpus!")
-				   (princ "You ran into the Wumpus. Game Over.")))
-	  (charging (princ "You wasted your last bullet. Game Over."))
+				     (game-over "You found the wumpus!")
+				   (game-over "You ran into the Wumpus. Game Over.")))
+	  (charging (game-over "You wasted your last bullet. Game Over."))
 	  (has-worm (let ((new-pos (random-node)))
 		      (princ "You ran into a Glow Worm Gang! You're now at ")
 		      (princ new-pos)
 		      (handle-new-place nil new-pos nil))))))
 			 
-; TODO Il gioco continua anche con il game over
+(defun game-over (msg)
+  (princ msg)
+  (new-game))
+
+; TODO CLI semplificata (vedi wizard adventure)
