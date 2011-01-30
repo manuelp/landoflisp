@@ -7,6 +7,7 @@
 (defparameter *edge-num* 45)
 (defparameter *worm-num* 3)
 (defparameter *cop-odds* 15)
+(defparameter *game-over* nil)
 
 ; () -> numero random tra 1 e *node-num*
 (defun random-node ()
@@ -193,13 +194,19 @@
 (defun draw-known-city ()
   (ugraph->png "know-city" (known-city-nodes) (known-city-edges)))
 
+(defun msg (text)
+  (princ text)
+  (fresh-line))
+
 (defun new-game ()
   (setf *congestion-city-edges* (make-city-edges))
   (setf *congestion-city-nodes* (make-city-nodes *congestion-city-edges*))
   (setf *player-pos* (find-empty-node))
   (setf *visited-nodes* (list *player-pos*))
+  (setf *game-over* nil)
   (draw-city)
-  (draw-known-city))
+  (draw-known-city)
+  (msg "---[ Grand Theft Wumpus ]---"))
 
 (defun walk (pos)
   (handle-direction pos nil))
@@ -211,7 +218,7 @@
   (let ((edge (assoc pos (cdr (assoc *player-pos* *congestion-city-edges*)))))
     (if edge
 	(handle-new-place edge pos charging)
-      (princ "That location does not exist!"))))
+      (msg "That location does not exist!"))))
 
 (defun handle-new-place (edge pos charging)
   (let* ((node (assoc pos *congestion-city-nodes*))
@@ -228,10 +235,27 @@
 	  (has-worm (let ((new-pos (random-node)))
 		      (princ "You ran into a Glow Worm Gang! You're now at ")
 		      (princ new-pos)
+		      (fresh-line)
 		      (handle-new-place nil new-pos nil))))))
-			 
-(defun game-over (msg)
-  (princ msg)
+		 
+(defun game-over (text)
+  (msg text)
+  (setf *game-over* t)
   (new-game))
 
-; TODO CLI semplificata (vedi wizard adventure)
+; CLI
+(defparameter *allowed-commands* '(new-game walk charge quit))
+
+(defun game-repl ()
+  (let* ((cmd (read-from-string (concatenate 'string "(" (read-line) ")"))))
+    (unless (or (eq (car cmd) 'quit)
+		*game-over*)
+      (if (member (car cmd) *allowed-commands*)
+	  (eval cmd)
+	(progn
+	  (princ "Invalid command!")
+	  (fresh-line)))
+      (game-repl))))
+
+(new-game)
+(game-repl)
