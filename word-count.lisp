@@ -1,0 +1,20 @@
+(defparameter *words* '(Sto cominciando lentamente a capire come funziona la programmazione in lisp mi piace il lisp))
+(defparameter *count* nil)
+
+(defun word-count (words)
+  (mapcar (lambda (word)
+	    (if (eql (assoc word *count*) nil)
+		(push (list word 1) *count*)
+		(setf (cadr (assoc word *count*)) (1+ (cadr (assoc word *count*))))))
+	  words))
+
+(defun print-count (count)
+  (mapcar (lambda (entry)
+	    (princ (car entry))
+	    (princ ": ")
+	    (princ (cdr entry))
+	    (fresh-line))
+	  count))
+
+(word-count *words*)
+(print-count *count*)
