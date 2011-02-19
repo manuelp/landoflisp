@@ -2,6 +2,7 @@
 
 (defparameter *congestion-city-nodes* nil)
 (defparameter *congestion-city-edges* nil)
+(defparameter *player-pos* nil)
 (defparameter *visited-nodes* nil)
 (defparameter *node-num* 30)
 (defparameter *edge-num* 45)
