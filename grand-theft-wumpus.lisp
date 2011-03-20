@@ -29,12 +29,12 @@
 ; ---- Questi parametri sono per il debugging
 (defparameter *test-nodes* '(a b c d e f g h i j))
 (defparameter *test-edges* '((a . b) (b . a) 
-			(a . c) (c . a) 
-			(a . e) (e . a) 
-			(e . d) (d . e) 
-			(e . f) (f . e)
-			(g . h) (h . g)
-			(g . i) (i . g)))
+			     (a . c) (c . a) 
+			     (a . e) (e . a) 
+			     (e . d) (d . e) 
+			     (e . f) (f . e)
+			     (g . h) (h . g)
+			     (g . i) (i . g)))
 ; ----
 
 (defun direct-edges (node edge-list)
@@ -257,6 +257,39 @@
 	  (princ "Invalid command!")
 	  (fresh-line)))
       (game-repl))))
+
+;; Re-implementazione di alcune funzioni con hash-tables per ottimizzazione
+
+; Converte la lista di spigoli in una hashtable 
+; (nodo -> [nodi direttamente collegati])
+(defun hash-edges (edge-list)
+  (let ((tab (make-hash-table)))
+    (mapc (lambda (x)
+	    (let ((node (car x)))
+	      (push (cdr x) (gethash node tab))))
+	  edge-list)
+    tab))
+
+; Ritorna la lista di tutti i nodi collegati utilizzando l'hash-table
+; piuttosto che un'alist
+(defun get-connected-hash (node edge-tab)
+  (let ((visited (make-hash-table)))
+    (labels ((traverse (node)
+	       (unless (gethash node visited)
+		 (setf (gethash node visited) t)
+		 (mapc (lambda (edge)
+			 (traverse edge))
+		       (gethash node edge-tab)))))
+      (traverse node))
+    visited))
+
+(defun profile-alist ()
+  (time (dotimes (i 100)
+	  (get-connected 1 (make-edge-list)))))
+
+(defun profile-hash ()
+  (time (dotimes (i 100)
+	  (get-connected-hash 1 (hash-edges (make-edge-list))))))
 
 (new-game)
 (game-repl)
